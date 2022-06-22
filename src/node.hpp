@@ -24,7 +24,7 @@ namespace dag
         }
 
         template <typename MsgT>
-        void publishMessage(const MsgT &msg)
+        void notifyChildren(const MsgT &msg)
         {
             std::apply([&msg](auto &&...children)
                        { ((children.onMsgReceived(msg)), ...); },
@@ -46,6 +46,7 @@ namespace dag
     // node with no child
     class SinkNode : public Node<>
     {
+    public:
         template <typename MsgT>
         void onMsgReceived(const MsgT &msg)
         {
@@ -54,12 +55,30 @@ namespace dag
     };
 
     // node with one child "SinkNode"
-    class NodeA : public Node<SinkNode *>
+    class NodeA : public Node<SinkNode>
     {
+    public:
+        explicit NodeA(SinkNode node)
+            : Node(node)
+        {
+        }
+
         template <typename MsgT>
         void onMsgReceived(const MsgT &msg)
         {
             std::cout << "msg reaches NodeA: " << node_id() << "\n";
+
+            double y = 3.0;
+            notifyChildren(y);
+        }
+    };
+
+    class SourceNode : public Node<NodeA>
+    {
+    public:
+        explicit SourceNode(NodeA node)
+            : Node(node)
+        {
         }
     };
 
