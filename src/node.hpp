@@ -13,73 +13,59 @@ namespace dag
 
     // template parameters are the children
     // TODO: how to access the parents?
-    template <typename... ChildTypes>
-    class Node
+    template <typename... ParentTypes>
+    class WithParents
     {
-    public:
-        Node()
+        template <typename... ChildTypes>
+        struct Node
         {
-            node_id_ = ++node_index;
-        }
+        public:
+            Node()
+            {
+                node_id_ = ++node_index;
+            }
 
-        // do nothing by default
-        template <typename MsgT>
-        void onMsgReceived(const MsgT &msg)
-        {
-        }
+            // do nothing by default
+            template <typename MsgT>
+            void onMsgReceived(const MsgT &msg)
+            {
+            }
 
-        template <typename MsgT>
-        void notifyChildren(const MsgT &msg) const
-        {
-            std::apply([&msg](auto &&...children)
-                       { ((children->onMsgReceived(msg)), ...); },
-                       children_);
-        }
+            template <typename MsgT>
+            void notifyChildren(const MsgT &msg) const
+            {
+                std::apply([&msg](auto &&...children)
+                           { ((children->onMsgReceived(msg)), ...); },
+                           children_);
+            }
 
-        template <size_t index, typename ChildT>
-        void set_child(std::shared_ptr<ChildT> child)
-        {
-            std::get<index>(children_) = child;
-        }
+            template <size_t index, typename ChildT>
+            void set_child(std::shared_ptr<ChildT> child)
+            {
+                std::get<index>(children_) = child;
+                // template as a qualifier
+                child->template set_parent<index>(this);
+            }
 
-        int node_id() const
-        {
-            return node_id_;
-        }
+            // not expected to be called directly
+            template <size_t index, typename ParentT>
+            void set_parent(const ParentT *parent)
+            {
+                std::get<index>(parents_) = parent;
+            }
 
-    protected:
-        std::tuple<std::shared_ptr<ChildTypes>...> children_;
+            int node_id() const
+            {
+                return node_id_;
+            }
 
-    private:
-        int node_id_{0};
-    };
+        protected:
+            std::tuple<ParentTypes *...> parents_;
+            std::tuple<std::shared_ptr<ChildTypes>...> children_;
 
-    // it does not even need to be subclass of Node
-    class SinkNode
-    {
-    public:
-        void onMsgReceived(const double &msg)
-        {
-            std::cout << "msg with type [" << typeid(msg).name() << "] reaches SinkNode\n";
-        }
-    };
-
-    // node with one child "SinkNode"
-    class NodeA : public Node<SinkNode>
-    {
-    public:
-        template <typename MsgT>
-        void onMsgReceived(const MsgT &msg)
-        {
-            std::cout << "msg with type [" << typeid(msg).name() << "] reaches NodeA: " << node_id() << "\n";
-
-            double y = 3.0;
-            notifyChildren(y);
-        }
-    };
-
-    class SourceNode : public Node<NodeA>
-    {
+        private:
+            int node_id_{0};
+        };
     };
 
 } // namespace dag

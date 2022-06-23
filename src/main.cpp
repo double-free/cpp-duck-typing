@@ -1,4 +1,4 @@
-#include "node.hpp"
+#include "concrete_node.hpp"
 
 namespace dag
 {
