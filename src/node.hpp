@@ -11,6 +11,8 @@ namespace dag
 {
     extern std::atomic<int> node_index;
 
+    // template parameters are the children
+    // TODO: how to access the parents?
     template <typename... ChildTypes>
     class Node
     {
@@ -56,8 +58,7 @@ namespace dag
     class SinkNode : public Node<>
     {
     public:
-        template <typename MsgT>
-        void onMsgReceived(const MsgT &msg)
+        void onMsgReceived(const double &msg)
         {
             std::cout << "msg with type [" << typeid(msg).name() << "] reaches SinkNode: " << node_id() << "\n";
         }
