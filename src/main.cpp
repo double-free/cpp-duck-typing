@@ -15,7 +15,7 @@ int main(int argc, char const *argv[]) {
   auto source = std::make_shared<dag::SourceNode>();
   source->set_child<0>(node);
 
-  source->notifyChildren(10);
+  source->notify_children(10);
 
   return 0;
 }

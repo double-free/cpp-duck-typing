@@ -4,10 +4,10 @@
 
 namespace dag {
 // source node has no parent
-using SourceNode = WithParents<>::Node<NodeA>;
+using SourceNode = WithParent<>::WithChild<NodeA>::Node;
 // sink node has no child
-using SinkNode = WithParents<NodeA>::Node<>;
+using SinkNode = WithParent<NodeA>::WithChild<>::Node;
 
-using NodeA = WithParents<SourceNode>::Node<SinkNode>;
+using NodeA = WithParent<SourceNode>::WithChild<SinkNode>::Node;
 
 } // namespace dag
