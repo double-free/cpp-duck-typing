@@ -1,20 +1,23 @@
 #pragma once
 
 #include <tuple>
+#include <memory>
+#include <typeinfo>
+#include <atomic>
 
 #include <iostream>
 
 namespace dag
 {
+    extern std::atomic<int> node_index;
+
     template <typename... ChildTypes>
     class Node
     {
     public:
-        explicit Node(ChildTypes... children)
-            : children_(std::forward_as_tuple(children...))
+        Node()
         {
-            static int node_id = 0;
-            node_id_ = ++node_id;
+            node_id_ = ++node_index;
         }
 
         // do nothing by default
@@ -27,8 +30,14 @@ namespace dag
         void notifyChildren(const MsgT &msg)
         {
             std::apply([&msg](auto &&...children)
-                       { ((children.onMsgReceived(msg)), ...); },
+                       { ((children->onMsgReceived(msg)), ...); },
                        children_);
+        }
+
+        template <size_t index, typename ChildT>
+        void set_child(std::shared_ptr<ChildT> child)
+        {
+            std::get<index>(children_) = child;
         }
 
         int node_id() const
@@ -37,7 +46,7 @@ namespace dag
         }
 
     protected:
-        std::tuple<ChildTypes...> children_;
+        std::tuple<std::shared_ptr<ChildTypes>...> children_;
 
     private:
         int node_id_{0};
@@ -50,7 +59,7 @@ namespace dag
         template <typename MsgT>
         void onMsgReceived(const MsgT &msg)
         {
-            std::cout << "msg reaches SinkNode: " << node_id() << "\n";
+            std::cout << "msg with type [" << typeid(msg).name() << "] reaches SinkNode: " << node_id() << "\n";
         }
     };
 
@@ -58,15 +67,10 @@ namespace dag
     class NodeA : public Node<SinkNode>
     {
     public:
-        explicit NodeA(SinkNode node)
-            : Node(node)
-        {
-        }
-
         template <typename MsgT>
         void onMsgReceived(const MsgT &msg)
         {
-            std::cout << "msg reaches NodeA: " << node_id() << "\n";
+            std::cout << "msg with type [" << typeid(msg).name() << "] reaches NodeA: " << node_id() << "\n";
 
             double y = 3.0;
             notifyChildren(y);
@@ -75,11 +79,6 @@ namespace dag
 
     class SourceNode : public Node<NodeA>
     {
-    public:
-        explicit SourceNode(NodeA node)
-            : Node(node)
-        {
-        }
     };
 
 } // namespace dag
