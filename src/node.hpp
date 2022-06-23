@@ -3,9 +3,6 @@
 #include <atomic>
 #include <memory>
 #include <tuple>
-#include <typeinfo>
-
-#include <iostream>
 
 namespace dag {
 extern std::atomic<int> node_index;
@@ -20,11 +17,7 @@ template <typename... ParentTypes> struct WithParents {
     // do nothing by default
     template <typename MsgT> void onMsgReceived(const MsgT &msg) {}
 
-    template <typename MsgT> void notifyChildren(const MsgT &msg) const {
-      std::apply(
-          [&msg](auto &&...children) { ((children->onMsgReceived(msg)), ...); },
-          children_);
-    }
+    template <typename MsgT> void notifyChildren(const MsgT &msg) const;
 
     template <size_t index, typename ChildT>
     void set_child(std::shared_ptr<ChildT> child);
@@ -60,5 +53,15 @@ template <size_t index, typename ParentT>
 void WithParents<ParentTypes...>::Node<ChildTypes...>::set_parent(
     const ParentT *parent) {
   std::get<index>(parents_) = parent;
+}
+
+template <typename... ParentTypes>
+template <typename... ChildTypes>
+template <typename MsgT>
+void WithParents<ParentTypes...>::Node<ChildTypes...>::notifyChildren(
+    const MsgT &msg) const {
+  std::apply(
+      [&msg](auto &&...children) { ((children->onMsgReceived(msg)), ...); },
+      children_);
 }
 } // namespace dag

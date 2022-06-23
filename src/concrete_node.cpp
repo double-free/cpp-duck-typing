@@ -1,5 +1,8 @@
 #include "concrete_node.hpp"
 
+#include <iostream>
+#include <typeinfo>
+
 using namespace dag;
 
 void SinkNode::onMsgReceived(const double &msg) {
