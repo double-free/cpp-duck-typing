@@ -4,7 +4,8 @@ RUN sed -i "s@http://deb.debian.org@https://mirror.sjtu.edu.cn@g" /etc/apt/sourc
 RUN apt-get -y --no-install-recommends install \
       cmake \
       clang-format \
-      gdb
+      gdb \
+      less
 
 WORKDIR /app/build
 CMD ["bash"]
