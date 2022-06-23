@@ -29,7 +29,7 @@ namespace dag
         }
 
         template <typename MsgT>
-        void notifyChildren(const MsgT &msg)
+        void notifyChildren(const MsgT &msg) const
         {
             std::apply([&msg](auto &&...children)
                        { ((children->onMsgReceived(msg)), ...); },
@@ -54,13 +54,13 @@ namespace dag
         int node_id_{0};
     };
 
-    // node with no child
-    class SinkNode : public Node<>
+    // it does not even need to be subclass of Node
+    class SinkNode
     {
     public:
         void onMsgReceived(const double &msg)
         {
-            std::cout << "msg with type [" << typeid(msg).name() << "] reaches SinkNode: " << node_id() << "\n";
+            std::cout << "msg with type [" << typeid(msg).name() << "] reaches SinkNode\n";
         }
     };
 

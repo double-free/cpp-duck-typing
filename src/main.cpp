@@ -7,14 +7,13 @@ namespace dag
 
 int main(int argc, char const *argv[])
 {
-    // node #1
     auto sink = std::make_shared<dag::SinkNode>();
 
-    // node #2
+    // node #1
     auto node = std::make_shared<dag::NodeA>();
     node->set_child<0>(sink);
 
-    // node #3
+    // node #2
     auto source = std::make_shared<dag::SourceNode>();
     source->set_child<0>(node);
 
