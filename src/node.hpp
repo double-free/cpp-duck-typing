@@ -21,17 +21,11 @@ public:
   }
 
   template <size_t index, typename ChildT>
-  void set_child(std::shared_ptr<ChildT> child) {
-    std::get<index>(children_) = child;
-    // template as a qualifier
-    child->template set_parent<index>(this);
-  }
+  void set_child(std::shared_ptr<ChildT> child);
 
   // not expected to be called directly
   template <size_t index, typename ParentT>
-  void set_parent(const ParentT *parent) {
-    std::get<index>(parents_) = parent;
-  }
+  void set_parent(const ParentT *parent);
 
   int node_id() const { return node_id_; }
 
@@ -42,6 +36,20 @@ protected:
 private:
   int node_id_{0};
 };
+
+template <typename ParentTuple, typename ChildTuple>
+template <size_t index, typename ChildT>
+void _Node<ParentTuple, ChildTuple>::set_child(std::shared_ptr<ChildT> child) {
+  std::get<index>(children_) = child;
+  // template as a qualifier
+  child->template set_parent<index>(this);
+}
+
+template <typename ParentTuple, typename ChildTuple>
+template <size_t index, typename ParentT>
+void _Node<ParentTuple, ChildTuple>::set_parent(const ParentT *parent) {
+  std::get<index>(parents_) = parent;
+}
 
 // template parameters are the children
 // TODO: how to access the parents?
