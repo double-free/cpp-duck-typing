@@ -17,4 +17,3 @@ target_sources(${PROJECT_NAME} PRIVATE
 if (BUILD_TEST)
     add_subdirectory("test")
 endif()
->>>>>>> compilable
