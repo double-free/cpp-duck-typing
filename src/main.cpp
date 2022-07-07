@@ -1,21 +1,29 @@
-#include "concrete_node.hpp"
+#include "node/Node.hpp"
+#include "node/SourceNode.hpp"
+#include "mock/MockNodes.hpp"
 
-namespace dag {
-std::atomic<int> node_index = 0;
-} // namespace dag
-
-int main(int argc, char const *argv[]) {
-  auto sink = std::make_shared<dag::SinkNode>();
+int main(int argc, char const *argv[])
+{
+  std::shared_ptr<dag::NodeBase> sink = dag::NodeFactory::create("MockSinkNode", "sink", {"feature"});
 
   // node #1
-  auto node = std::make_shared<dag::NodeA>();
-  node->set_child<0>(sink);
+  std::shared_ptr<dag::NodeBase> node = dag::NodeFactory::create("MockFeatureNode", "feature", {"source"});
+  node->add_child(sink);
 
   // node #2
-  auto source = std::make_shared<dag::SourceNode>();
-  source->set_child<0>(node);
+  std::shared_ptr<dag::NodeBase> source = dag::NodeFactory::create("MockSourceNode", "source", {});
+  source->add_child(node);
 
-  source->notify_children(10);
+  simv3::MessageHeader header;
+  header.clock = simv3::Clock(std::chrono::seconds(10));
+  header.sequence = 0;
+  header.key = 1111;
+
+  simv3::MockMessage msg;
+  auto raw_message = simv3::RawMessage(header, msg);
+
+  auto casted = std::dynamic_pointer_cast<dag::RawMessageHandler>(source);
+  casted->on_raw_message(raw_message);
 
   return 0;
 }
