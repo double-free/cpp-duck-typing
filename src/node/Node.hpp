@@ -101,7 +101,9 @@ namespace dag
 
     // template parameters are the children types
     // children types shall be unique
-    // TODO: how to access the parents?
+
+    // you can subscribe to parent's message (e.g., MessageA) by defining:
+    // void on_msg_received(const simv3::MessageHeader&, const MessageA&)
     template <typename... ChildTypes>
     class Node : public NodeBase
     {
@@ -133,12 +135,6 @@ namespace dag
                           ...); },
                        children_);
             return result;
-        }
-
-        // do nothing by default
-        template <typename MsgT>
-        void on_msg_received(const simv3::MessageHeader &header, const MsgT &msg)
-        {
         }
 
         // return the index of the child been set, -1 if invalid
