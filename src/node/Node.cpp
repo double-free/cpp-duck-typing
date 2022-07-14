@@ -7,9 +7,10 @@ namespace dag
     std::atomic<int> GLOBAL_NODE_INDEX = 0;
 
     NodeBase::NodeBase(
+        int key,
         const std::string &name,
         const std::vector<std::string> &parent_names)
-        : name_(name), parent_names_(parent_names)
+        : key_(key), name_(name), parent_names_(parent_names)
     {
         parents_.resize(parent_names.size());
         node_id_ = ++GLOBAL_NODE_INDEX;

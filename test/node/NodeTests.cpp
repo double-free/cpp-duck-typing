@@ -19,7 +19,7 @@ TEST_F(NodeTestFixture, message_flow)
     simv3::MessageHeader header;
     header.clock = simv3::Clock(std::chrono::seconds(10));
     header.sequence = 0;
-    header.key = 1111;
+    header.key = 10000;
 
     simv3::MockMessage msg;
     auto raw_message = simv3::RawMessage(header, msg);
@@ -35,7 +35,7 @@ TEST_F(NodeTestFixture, message_flow)
     // the message is modified by feature node
     EXPECT_EQ(std::chrono::seconds(10) + std::chrono::microseconds(1), received_header.clock);
     EXPECT_EQ(1, received_header.sequence);
-    EXPECT_EQ(2222, received_header.key);
+    EXPECT_EQ(10000, received_header.key);
     EXPECT_EQ(simv3::MsgTrait<simv3::MockMessage>::type, received_header.type);
     EXPECT_EQ(sizeof(simv3::MockMessage), received_header.size);
 }
