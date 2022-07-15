@@ -21,6 +21,8 @@
 #     gtest_main
 # )
 
+find_package(Threads REQUIRED)
+
 include(GoogleTest)
 function(sim_test)
   cmake_parse_arguments(SIM_TEST
@@ -75,5 +77,6 @@ function(default_sim_test)
     DEPS
       gtest
       gtest_main
+      ${CMAKE_THREAD_LIBS_INIT}
   )
 endfunction()

@@ -7,7 +7,7 @@ Option(BUILD_TEST "Build unittest" OFF)
 
 add_executable(${PROJECT_NAME})
 
-target_sources(${PROJECT_NAME} PRIVATE 
+target_sources(${PROJECT_NAME} PRIVATE
     src/main.cpp
     src/node/Node.cpp
     src/mock/MockNodes.cpp

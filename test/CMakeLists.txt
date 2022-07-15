@@ -17,4 +17,5 @@ sim_test(
   DEPS
     gtest
     gtest_main
+    ${CMAKE_THREAD_LIBS_INIT}
 )
