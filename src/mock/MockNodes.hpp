@@ -21,9 +21,10 @@ namespace ut
     {
     public:
         MockSinkNode(
+            int key,
             const std::string &name,
             const std::vector<std::string> &parent_names)
-            : dag::Node<>(name, parent_names)
+            : dag::Node<>(key, name, parent_names)
         {
         }
 
@@ -42,17 +43,42 @@ namespace ut
         std::vector<simv3::MessageHeader> headers_;
     };
 
-    using MockFeatureNode = dag::Node<MockSinkNode>;
+    class MockFeatureNode : public dag::Node<MockSinkNode>
+    {
+    public:
+        MockFeatureNode(
+            int key,
+            const std::string &name,
+            const std::vector<std::string> &parent_names)
+            : dag::Node<MockSinkNode>(key, name, parent_names)
+        {
+        }
+        void on_msg_received(const simv3::MessageHeader &header,
+                             const simv3::MockMessage &msg);
+    };
 
-    using MockFeatureNode2 = dag::Node<MockSinkNode, MockSinkNode>;
+    class MockFeatureNode2 : public dag::Node<MockSinkNode>
+    {
+    public:
+        MockFeatureNode2(
+            int key,
+            const std::string &name,
+            const std::vector<std::string> &parent_names)
+            : dag::Node<MockSinkNode>(key, name, parent_names)
+        {
+        }
+        void on_msg_received(const simv3::MessageHeader &header,
+                             const simv3::MockMessage &msg);
+    };
 
     class MockSourceNode : public dag::SourceNode<MockFeatureNode>
     {
     public:
         MockSourceNode(
+            int key,
             const std::string &name,
             const std::vector<std::string> &parent_names)
-            : dag::SourceNode<MockFeatureNode>(name, parent_names)
+            : dag::SourceNode<MockFeatureNode>(key, name, parent_names)
         {
             registerMessageType<simv3::MockMessage>();
         }
@@ -62,9 +88,10 @@ namespace ut
     {
     public:
         MockSourceNode2(
+            int key,
             const std::string &name,
             const std::vector<std::string> &parent_names)
-            : dag::SourceNode<MockFeatureNode2>(name, parent_names)
+            : dag::SourceNode<MockFeatureNode2>(key, name, parent_names)
         {
             registerMessageType<simv3::MockMessage>();
         }

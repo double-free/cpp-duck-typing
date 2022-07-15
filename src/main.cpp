@@ -4,14 +4,15 @@
 
 int main(int argc, char const *argv[])
 {
-  std::shared_ptr<dag::NodeBase> sink = dag::NodeFactory::create("MockSinkNode", "sink", {"feature"});
+  int key = 10000;
+  std::shared_ptr<dag::NodeBase> sink = dag::NodeFactory::create("MockSinkNode", key, "sink", {"feature"});
 
   // node #1
-  std::shared_ptr<dag::NodeBase> node = dag::NodeFactory::create("MockFeatureNode", "feature", {"source"});
+  std::shared_ptr<dag::NodeBase> node = dag::NodeFactory::create("MockFeatureNode", key, "feature", {"source"});
   node->add_child(sink);
 
   // node #2
-  std::shared_ptr<dag::NodeBase> source = dag::NodeFactory::create("MockSourceNode", "source", {});
+  std::shared_ptr<dag::NodeBase> source = dag::NodeFactory::create("MockSourceNode", key, "source", {});
   source->add_child(node);
 
   simv3::MessageHeader header;

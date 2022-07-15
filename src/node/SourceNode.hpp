@@ -27,8 +27,8 @@ namespace dag
     class SourceNode : public Node<ChildTypes...>, public RawMessageHandler
     {
     public:
-        SourceNode(const std::string &name, const std::vector<std::string> &parent_names)
-            : Node<ChildTypes...>(name, parent_names)
+        SourceNode(int key, const std::string &name, const std::vector<std::string> &parent_names)
+            : Node<ChildTypes...>(key, name, parent_names)
         {
             if (parent_names.empty() == false)
             {
@@ -42,16 +42,22 @@ namespace dag
         template <typename MsgType>
         void registerMessageType()
         {
-            static_assert(simv3::MsgTrait<MsgType>::type != -1, "message type is not registered!");
+            constexpr int msg_type = simv3::MsgTrait<MsgType>::type;
+            static_assert(msg_type != -1, "message type is not registered!");
+
+            if (handlers_.find(msg_type) != handlers_.end())
+            {
+                throw std::invalid_argument("register duplicated message type: " +
+                                            std::to_string(msg_type));
+            }
 
             auto handler = [this](const simv3::RawMessage &raw_msg)
             {
-                const auto &header = raw_msg.header();
                 const auto &msg = *reinterpret_cast<const MsgType *>(raw_msg.payload());
-                this->notify_children(msg, header.clock, header.sequence, header.key);
+                this->template notify_children(msg, raw_msg.header().clock);
             };
 
-            handlers_.emplace(simv3::MsgTrait<MsgType>::type, handler);
+            handlers_.emplace(msg_type, handler);
         }
     };
 } // namespace dag
